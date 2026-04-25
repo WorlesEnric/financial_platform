@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finance-platform"
+version = "0.1.0"
+description = "Enterprise Financial Reimbursement + Amortization Platform"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "sqlmodel>=0.0.14",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "alembic>=1.13.0",
+    "httpx>=0.26.0",
+    "structlog>=24.1.0",
+    "click>=8.1.0",
+    "uvicorn[standard]>=0.27.0",
+    "pyjwt>=2.8.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.scripts]
+finance_platform = "finance_platform.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"finance_platform" = ["py.typed"]
