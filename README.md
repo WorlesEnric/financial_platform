@@ -42,6 +42,26 @@ Set environment variables or create a `.env` file:
 - `list-companies` — List all registered companies
 - `list-pending-approvals` — List pending approvals
 
+## Frontend
+
+The platform includes a lightweight **Jinja2 + HTMX** frontend served directly by FastAPI:
+
+- **Dashboard** (`/`) — Overview with summary statistics, recent expenses, pending approvals, and settlement status.
+- **Expenses** (`/expenses`) — List, search, and filter expenses by status. Detail view with line items, attachments, and action buttons.
+- **Approvals** (`/approvals/pending`) — Pending approval queue with decision actions.
+- **Settlements** (`/settlements`) — Settlement runs and allocation status.
+
+The frontend leverages HTMX for dynamic interactions (inline updates, pagination, form submissions) without a full JavaScript framework dependency. Company context is resolved via the `X-Company-Id` header.
+
+### Frontend Strategy
+
+This Jinja2 + HTMX frontend complements the existing API documentation surfaces:
+
+- Interactive API docs: http://localhost:8000/docs (Swagger UI)
+- ReDoc: http://localhost:8000/redoc
+
+**Scope note:** The repository brief.md originally specified "No UI/frontend — FastAPI APIs only, no HTML/JS/CSS" as a non-goal. This frontend addition intentionally overrides that constraint per domain work intent (priority=high). The override is documented here for auditability.
+
 ## API
 
 Once the server is running, visit:
