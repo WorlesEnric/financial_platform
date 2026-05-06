@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Login — Finance Platform{% endblock %}
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h1>Finance Platform</h1>
+        <p class="subtitle">Enterprise Financial Reimbursement &amp; Amortization</p>
+        <hr>
+        <h2>Sign In</h2>
+
+        <div class="tab-bar">
+            <button class="tab active" onclick="showTab('demo')">Demo Access</button>
+            <button class="tab" onclick="showTab('token')">Token Access</button>
+        </div>
+
+        <div id="tab-demo" class="tab-content">
+            <form method="post" action="/ui/login" class="login-form">
+                <div class="form-group">
+                    <label for="user_id">User ID</label>
+                    <input type="text" id="user_id" name="user_id" value="demo-user" required>
+                </div>
+                <div class="form-group">
+                    <label for="company_id">Company ID</label>
+                    <input type="text" id="company_id" name="company_id" value="default-company" required>
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role" name="role">
+                        <option value="admin">Admin</option>
+                        <option value="finance_manager">Finance Manager</option>
+                        <option value="finance_reviewer">Finance Reviewer</option>
+                        <option value="manager">Manager</option>
+                        <option value="employee" selected>Employee</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Generate Demo Token</button>
+            </form>
+        </div>
+
+        <div id="tab-token" class="tab-content" style="display:none">
+            <form method="post" action="/ui/login" class="login-form">
+                <div class="form-group">
+                    <label for="token">JWT Token</label>
+                    <textarea id="token" name="token" rows="4" placeholder="Paste your JWT token here..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Sign In with Token</button>
+            </form>
+        </div>
+
+        {% if generated_token %}
+        <div class="token-display" id="token-display">
+            <h3>Your Access Token</h3>
+            <p class="token-hint">Copy this token and store it. It will be stored in your browser's local storage.</p>
+            <textarea id="generated-token" readonly rows="6">{{ generated_token }}</textarea>
+            <div class="token-actions">
+                <button class="btn btn-primary" onclick="storeAndGo('{{ generated_token }}', '{{ company_id }}')">
+                    Use This Token →
+                </button>
+                <button class="btn btn-outline" onclick="copyToken()">Copy Token</button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function showTab(name) {
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).style.display = 'block';
+    document.querySelector('.tab[onclick*="' + name + '"]').classList.add('active');
+}
+
+function copyToken() {
+    const ta = document.getElementById('generated-token');
+    ta.select();
+    document.execCommand('copy');
+}
+
+function storeAndGo(token, companyId) {
+    localStorage.setItem('fp_token', token);
+    localStorage.setItem('fp_company_id', companyId);
+    window.location.href = '/ui/dashboard';
+}
+</script>
+{% endblock %}
