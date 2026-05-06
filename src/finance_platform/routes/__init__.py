@@ -11,6 +11,7 @@ from finance_platform.routes.audit_routes import router as audit_router
 from finance_platform.routes.carry_forward_routes import router as carry_forward_router
 from finance_platform.routes.debt_routes import router as debt_router
 from finance_platform.routes.expense_routes import router as expense_router
+from finance_platform.routes.frontend_routes import router as frontend_router
 from finance_platform.routes.fx_routes import router as fx_router
 from finance_platform.routes.health_routes import router as health_router
 from finance_platform.routes.identity_routes import router as identity_router
@@ -33,6 +34,10 @@ def mount_all_routes(app: FastAPI) -> None:
 
 
 def init_routes() -> None:
+    # Frontend routes — registered first so "/" serves the dashboard
+    register_router(frontend_router, prefix="", tags=["frontend"])
+
+    # API routes
     register_router(health_router, prefix="/health", tags=["health"])
     register_router(identity_router, prefix="/api/v1/identity", tags=["identity"])
     register_router(expense_router, prefix="/api/v1/expenses", tags=["expenses"])
