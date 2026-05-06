@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Finance Platform{% endblock %}
+{% block content %}
+<div class="dashboard">
+    <div class="page-header">
+        <h1>Dashboard</h1>
+        <div class="config-bar">
+            <label>Token: <input type="password" id="config-token" placeholder="JWT token"></label>
+            <label>Company: <input type="text" id="config-company" placeholder="company-id"></label>
+            <button class="btn btn-sm btn-primary" onclick="saveConfig()">Apply</button>
+            <button class="btn btn-sm btn-outline" onclick="testConnection()">Test</button>
+        </div>
+    </div>
+
+    <div id="alert-area"></div>
+
+    <div class="card-grid">
+        <div class="card">
+            <h3>System Health</h3>
+            <div id="health-status" class="status-indicator">Checking…</div>
+            <div class="card-actions">
+                <button class="btn btn-sm" onclick="apiCall('GET', '/health/ping')">Ping</button>
+                <button class="btn btn-sm" onclick="apiCall('GET', '/health/ready')">Ready</button>
+                <button class="btn btn-sm" onclick="apiCall('GET', '/health/version')">Version</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Companies</h3>
+            <p>Manage multi-tenant company registrations</p>
+            <div class="card-actions">
+                <button class="btn btn-sm" onclick="apiCall('GET', '/api/v1/identity/companies')">List All</button>
+                <a href="/ui/companies" class="btn btn-sm">Manage →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Expenses</h3>
+            <p>Submit and track expense reports</p>
+            <div class="card-actions">
+                <button class="btn btn-sm" onclick="apiCall('GET', '/api/v1/expenses')">List Expenses</button>
+                <a href="/ui/expenses" class="btn btn-sm">Manage →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Approvals</h3>
+            <p>Review and approve expense submissions</p>
+            <div class="card-actions">
+                <a href="/ui/approvals" class="btn btn-sm">View →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>FX Rates</h3>
+            <p>Foreign exchange rate management with immutable snapshots</p>
+            <div class="card-actions">
+                <button class="btn btn-sm" onclick="apiCall('GET', '/api/v1/fx/rates')">View Rates</button>
+                <a href="/ui/fx" class="btn btn-sm">Manage →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Amortization</h3>
+            <p>Amortization schedules, entries, and forecasting</p>
+            <div class="card-actions">
+                <a href="/ui/amortization" class="btn btn-sm">View →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Settlements</h3>
+            <p>Settlement runs, allocations, and priority queuing</p>
+            <div class="card-actions">
+                <a href="/ui/settlements" class="btn btn-sm">View →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Debts</h3>
+            <p>Debt tracking, repayment, and write-off management</p>
+            <div class="card-actions">
+                <a href="/ui/debts" class="btn btn-sm">View →</a>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Audit Log</h3>
+            <p>Audit trail and domain event outbox</p>
+            <div class="card-actions">
+                <a href="/ui/audit" class="btn btn-sm">View →</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="api-explorer">
+        <h2>API Explorer</h2>
+        <div class="api-controls">
+            <select id="api-method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+            <input type="text" id="api-url" placeholder="/api/v1/..." value="/health/ping" class="api-url-input">
+            <button class="btn btn-primary" onclick="exploreApi()">Send</button>
+        </div>
+        <div class="api-body-row" id="api-body-row" style="display:none">
+            <textarea id="api-body" rows="4" placeholder='{"key": "value"}'></textarea>
+        </div>
+        <pre id="api-response" class="api-response"></pre>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const token = localStorage.getItem('fp_token');
+    const company = localStorage.getItem('fp_company_id');
+    if (token) document.getElementById('config-token').value = token;
+    if (company) document.getElementById('config-company').value = company;
+    if (token && company) {
+        document.getElementById('user-info').textContent = 'Company: ' + company;
+        testConnection();
+    } else {
+        document.getElementById('alert-area').innerHTML =
+            '<div class="alert alert-warning">No token configured. Use Demo Access on the <a href="/ui/login">login page</a> or enter your token above.</div>';
+    }
+});
+
+document.getElementById('api-method').addEventListener('change', function() {
+    const method = this.value;
+    document.getElementById('api-body-row').style.display =
+        (method === 'POST' || method === 'PUT') ? 'block' : 'none';
+});
+</script>
+{% endblock %}
