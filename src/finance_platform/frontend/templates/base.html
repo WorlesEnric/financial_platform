@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Finance Platform{% endblock %}</title>
+    <link rel="stylesheet" href="/ui/static/css/app.css">
+    {% block head %}{% endblock %}
+</head>
+<body class="{% if active_section %}section-{{ active_section }}{% endif %}">
+    <header class="app-header">
+        <div class="header-left">
+            <a href="/ui/dashboard" class="logo">💰 Finance Platform</a>
+        </div>
+        <div class="header-right" id="header-right">
+            <span id="user-info" class="user-info"></span>
+            <button id="logout-btn" class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+        </div>
+    </header>
+    <nav class="app-nav" id="app-nav">
+        <a href="/ui/dashboard" data-section="dashboard" class="nav-item">Dashboard</a>
+        <a href="/ui/companies" data-section="companies" class="nav-item">Companies</a>
+        <a href="/ui/expenses" data-section="expenses" class="nav-item">Expenses</a>
+        <a href="/ui/approvals" data-section="approvals" class="nav-item">Approvals</a>
+        <a href="/ui/amortization" data-section="amortization" class="nav-item">Amortization</a>
+        <a href="/ui/fx" data-section="fx" class="nav-item">FX Rates</a>
+        <a href="/ui/settlements" data-section="settlements" class="nav-item">Settlements</a>
+        <a href="/ui/debts" data-section="debts" class="nav-item">Debts</a>
+        <a href="/ui/audit" data-section="audit" class="nav-item">Audit</a>
+    </nav>
+    <main class="app-main" id="app-main">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="app-footer">
+        <p>Finance Platform v0.1.0 — Enterprise Financial Reimbursement &amp; Amortization</p>
+    </footer>
+    <script src="/ui/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
