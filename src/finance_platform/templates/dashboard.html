@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Finance Platform{% endblock %}
+{% block content %}
+<section class="page-header">
+    <h1>Dashboard</h1>
+    <p class="subtitle">Platform overview for your company</p>
+</section>
+
+<div class="dashboard-grid">
+    <div class="card" hx-get="/dashboard/stats" hx-trigger="load" hx-target="this">
+        <div class="card-header">Summary Statistics</div>
+        <div class="card-body skeleton">Loading stats…</div>
+    </div>
+    <div class="card">
+        <div class="card-header">Recent Expenses</div>
+        <div class="card-body" hx-get="/expenses/recent" hx-trigger="load" hx-target="this">
+            <div class="skeleton">Loading recent expenses…</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Pending Approvals</div>
+        <div class="card-body" hx-get="/approvals/pending-summary" hx-trigger="load" hx-target="this">
+            <div class="skeleton">Loading approvals…</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Settlement Status</div>
+        <div class="card-body" hx-get="/settlements/summary-card" hx-trigger="load" hx-target="this">
+            <div class="skeleton">Loading settlements…</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
