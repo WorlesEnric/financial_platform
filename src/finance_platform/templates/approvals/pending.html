@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Pending Approvals — Finance Platform{% endblock %}
+{% block content %}
+<section class="page-header">
+    <h1>Pending Approvals</h1>
+    <p class="subtitle">Approval requests awaiting your decision</p>
+</section>
+
+<div id="pending-approvals" hx-get="/approvals/pending-data" hx-trigger="load every 30s">
+    <div class="skeleton">Loading pending approvals…</div>
+</div>
+{% endblock %}
