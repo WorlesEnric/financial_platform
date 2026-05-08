@@ -14,10 +14,10 @@
             <span class="navbar-title">Finance Platform</span>
         </div>
         <nav class="navbar-links">
-            <a href="/" class="navbar-link">Dashboard</a>
-            <a href="/expenses" class="navbar-link">Expenses</a>
-            <a href="/approvals/pending" class="navbar-link">Approvals</a>
-            <a href="/settlements" class="navbar-link">Settlements</a>
+            <a href="/" class="navbar-link{% if active_page == 'dashboard' %} active{% endif %}">Dashboard</a>
+            <a href="/expenses" class="navbar-link{% if active_page == 'expenses' %} active{% endif %}">Expenses</a>
+            <a href="/approvals/pending" class="navbar-link{% if active_page == 'approvals' %} active{% endif %}">Approvals</a>
+            <a href="/settlements" class="navbar-link{% if active_page == 'settlements' %} active{% endif %}">Settlements</a>
             <a href="/docs" class="navbar-link" target="_blank">API Docs</a>
         </nav>
         <div class="navbar-company">

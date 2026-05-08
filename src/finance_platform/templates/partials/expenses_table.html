@@ -1,0 +1,27 @@
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Title</th>
+<th>Amount</th>
+<th>Status</th>
+<th>Category</th>
+<th>Created</th>
+</tr>
+</thead>
+<tbody>
+{% for e in expenses %}
+<tr>
+<td><a href="/expenses/{{ e.id }}">{{ e.id }}</a></td>
+<td>{{ e.title }}</td>
+<td>{{ e.amount_display }}</td>
+<td><span class="badge status-{{ e.status }}">{{ e.status }}</span></td>
+<td>{{ e.category }}</td>
+<td>{{ e.created_at }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<p class="subtitle" style="padding:0.5rem">Showing demo data. Connect <code>X-Company-Id</code> header to see actual expenses.</p>
+</div>

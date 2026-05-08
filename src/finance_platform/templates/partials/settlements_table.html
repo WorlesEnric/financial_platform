@@ -1,0 +1,19 @@
+<div class="table-container">
+<table>
+<thead><tr><th>Run ID</th><th>Date</th><th>Status</th><th>Total Settled</th></tr></thead>
+<tbody>
+{% if settlements %}
+{% for s in settlements %}
+<tr>
+<td><a href="/settlements/{{ s.id }}">{{ s.id }}</a></td>
+<td>{{ s.run_date }}</td>
+<td><span class="badge status-{{ s.status }}">{{ s.status }}</span></td>
+<td>{{ s.total_settled_display }}</td>
+</tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="4" class="empty-state">No settlement runs found.</td></tr>
+{% endif %}
+</tbody>
+</table>
+</div>

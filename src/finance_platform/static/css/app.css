@@ -88,6 +88,11 @@ body {
     color: var(--color-text);
 }
 
+.navbar-link.active {
+    background: var(--color-primary);
+    color: white;
+}
+
 .navbar-company {
     margin-left: auto;
 }
