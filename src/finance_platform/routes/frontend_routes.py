@@ -25,6 +25,15 @@ def _render(request: Request, template_name: str, context: Dict[str, Any] | None
     ctx = dict(context or {})
     ctx.setdefault("current_company", None)
     ctx.setdefault("request", request)
+    ctx.setdefault("active_page", "")
+    return templates.TemplateResponse(request, template_name, ctx)
+
+
+def _render_partial(request: Request, template_name: str, context: Dict[str, Any] | None = None) -> HTMLResponse:
+    """Render a Jinja2 partial template (no base layout extension)."""
+    ctx = dict(context or {})
+    ctx.setdefault("current_company", None)
+    ctx.setdefault("request", request)
     return templates.TemplateResponse(request, template_name, ctx)
 
 
@@ -48,17 +57,7 @@ async def dashboard_stats(
         "pending_settlements": 0,
         "company_scoped": bool(company_id),
     }
-    html = f"""<div class="card-header">Summary Statistics</div>
-<div class="card-body">
-    <dl class="detail-list">
-        <dt>Total Expenses</dt><dd>{stats['total_expenses']}</dd>
-        <dt>Total Amount</dt><dd>{stats['total_amount_display']}</dd>
-        <dt>Pending Approvals</dt><dd>{stats['pending_approvals']}</dd>
-        <dt>Pending Settlements</dt><dd>{stats['pending_settlements']}</dd>
-    </dl>
-    {"<p class='empty-state'>No company selected. Use X-Company-Id header to scope data.</p>" if not stats['company_scoped'] else ""}
-</div>"""
-    return HTMLResponse(html)
+    return _render_partial(request, "partials/stats.html", {"stats": stats})
 
 
 @router.get("/select-company", response_class=HTMLResponse)
@@ -95,18 +94,13 @@ async def _expenses_table_partial(
     page_size: int,
     company_id: Optional[str],
 ) -> HTMLResponse:
-    """HTMX partial: expense table rows."""
-    # In full implementation, these would proxy to ExpenseService.
-    # For now the frontend renders the API contract surface.
+    """HTMX partial: expense table rows via Jinja2 template."""
     if not company_id:
-        return HTMLResponse("""<div class="card">
-<div class="card-body empty-state">
-<p>No company context available.</p>
-<p>Set the <code>X-Company-Id</code> header to view company-scoped expenses.</p>
-</div></div>""")
+        return _render_partial(request, "partials/empty_company.html", {
+            "message": "No company context available.",
+        })
 
-    rows_html = ""
-    demo_expenses = [
+    expenses = [
         {"id": "exp-001", "title": "Office Supplies - Q1", "amount_display": "$1,500.00",
          "status": "submitted", "category": "office_supplies", "created_at": "2026-05-01"},
         {"id": "exp-002", "title": "Travel - Client Visit", "amount_display": "$3,200.00",
@@ -114,36 +108,7 @@ async def _expenses_table_partial(
         {"id": "exp-003", "title": "Software Licenses", "amount_display": "$899.00",
          "status": "draft", "category": "software", "created_at": "2026-04-25"},
     ]
-    for e in demo_expenses:
-        status_cls = f"status-{e['status']}"
-        rows_html += f"""<tr>
-<td><a href="/expenses/{e['id']}">{e['id']}</a></td>
-<td>{e['title']}</td>
-<td>{e['amount_display']}</td>
-<td><span class="badge {status_cls}">{e['status']}</span></td>
-<td>{e['category']}</td>
-<td>{e['created_at']}</td>
-</tr>"""
-
-    html = f"""<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>Title</th>
-<th>Amount</th>
-<th>Status</th>
-<th>Category</th>
-<th>Created</th>
-</tr>
-</thead>
-<tbody hx-confirm="unset">
-{rows_html}
-</tbody>
-</table>
-<p class="subtitle" style="padding:0.5rem">Showing demo data. Connect X-Company-Id header to see actual expenses.</p>
-</div>"""
-    return HTMLResponse(html)
+    return _render_partial(request, "partials/expenses_table.html", {"expenses": expenses})
 
 
 @router.get("/expenses/recent", response_class=HTMLResponse)
@@ -153,16 +118,15 @@ async def expenses_recent(
 ):
     """HTMX partial: recent expenses for dashboard card."""
     if not company_id:
-        return HTMLResponse("""<div class="empty-state"><p>Select a company to view recent expenses.</p></div>""")
-    items = "<ul style='list-style:none;padding:0.25rem 0'>"
-    for e in [
+        return _render_partial(request, "partials/empty_state.html", {
+            "message": "Select a company to view recent expenses.",
+        })
+    expenses = [
         {"id": "exp-001", "title": "Office Supplies", "amount": "$1,500.00", "status": "submitted"},
         {"id": "exp-002", "title": "Travel", "amount": "$3,200.00", "status": "approved"},
         {"id": "exp-003", "title": "Software", "amount": "$899.00", "status": "draft"},
-    ]:
-        items += f"<li style='padding:0.25rem 0;font-size:0.875rem;border-bottom:1px solid var(--color-border)'><a href='/expenses/{e['id']}'>{e['title']}</a> — {e['amount']} <span class='badge status-{e['status']}'>{e['status']}</span></li>"
-    items += "</ul>"
-    return HTMLResponse(items)
+    ]
+    return _render_partial(request, "partials/expenses_recent.html", {"expenses": expenses})
 
 
 @router.get("/expenses/new", response_class=HTMLResponse)
@@ -189,13 +153,17 @@ async def expense_detail_page(request: Request, expense_id: str):
 @router.get("/expenses/{expense_id}/line-items", response_class=HTMLResponse)
 async def expense_line_items_partial(request: Request, expense_id: str):
     """HTMX partial: expense line items."""
-    return HTMLResponse("<p class='empty-state'>No line items for this expense.</p>")
+    return _render_partial(request, "partials/empty_state.html", {
+        "message": "No line items for this expense.",
+    })
 
 
 @router.get("/expenses/{expense_id}/attachments", response_class=HTMLResponse)
 async def expense_attachments_partial(request: Request, expense_id: str):
     """HTMX partial: expense attachments."""
-    return HTMLResponse("<p class='empty-state'>No attachments.</p>")
+    return _render_partial(request, "partials/empty_state.html", {
+        "message": "No attachments.",
+    })
 
 
 # ── Approvals ────────────────────────────────────────────────────────────
@@ -212,11 +180,13 @@ async def approvals_pending_summary(
 ):
     """HTMX partial: pending approvals summary for dashboard card."""
     if not company_id:
-        return HTMLResponse("""<div class="empty-state"><p>Select a company to view pending approvals.</p></div>""")
-    return HTMLResponse("""<dl class="detail-list">
-<dt>Pending</dt><dd>0</dd>
-<dt>Escalated</dt><dd>0</dd>
-</dl>""")
+        return _render_partial(request, "partials/empty_state.html", {
+            "message": "Select a company to view pending approvals.",
+        })
+    return _render_partial(request, "partials/approvals_summary.html", {
+        "pending": 0,
+        "escalated": 0,
+    })
 
 
 @router.get("/approvals/pending-data", response_class=HTMLResponse)
@@ -226,15 +196,25 @@ async def approvals_pending_data(
 ):
     """HTMX partial: pending approvals table."""
     if not company_id:
-        return HTMLResponse("""<div class="card">
-<div class="card-body empty-state">
-<p>No company context. Set <code>X-Company-Id</code> header to view pending approvals.</p>
-</div></div>""")
-    return HTMLResponse("""<div class="table-container">
-<table>
-<thead><tr><th>ID</th><th>Entity</th><th>Step</th><th>Action</th></tr></thead>
-<tbody><tr><td colspan="4" class="empty-state">No pending approvals.</td></tr></tbody>
-</table></div>""")
+        return _render_partial(request, "partials/empty_company.html", {
+            "message": "No company context.",
+        })
+    return _render_partial(request, "partials/approvals_pending_data.html", {"approvals": []})
+
+
+@router.get("/approvals/chains/{chain_id}", response_class=HTMLResponse)
+async def approval_chain_detail_page(request: Request, chain_id: str):
+    """Render the approval chain detail page."""
+    chain = {
+        "id": chain_id,
+        "entity_type": "expense",
+        "entity_id": "expense-1",
+        "status": "pending",
+        "current_step": 1,
+        "steps": [],
+        "created_at": datetime.utcnow().isoformat(),
+    }
+    return _render(request, "approvals/detail.html", {"active_page": "approvals", "chain": chain})
 
 
 # ── Settlements ──────────────────────────────────────────────────────────
@@ -257,15 +237,26 @@ async def _settlements_table_partial(
     company_id: Optional[str],
 ) -> HTMLResponse:
     if not company_id:
-        return HTMLResponse("""<div class="card">
-<div class="card-body empty-state">
-<p>No company context. Set <code>X-Company-Id</code> header to view settlements.</p>
-</div></div>""")
-    return HTMLResponse("""<div class="table-container">
-<table>
-<thead><tr><th>Run ID</th><th>Date</th><th>Status</th><th>Total Settled</th></tr></thead>
-<tbody><tr><td colspan="4" class="empty-state">No settlement runs found.</td></tr></tbody>
-</table></div>""")
+        return _render_partial(request, "partials/empty_company.html", {
+            "message": "No company context.",
+        })
+    return _render_partial(request, "partials/settlements_table.html", {"settlements": []})
+
+
+@router.get("/settlements/{settlement_id}", response_class=HTMLResponse)
+async def settlement_detail_page(request: Request, settlement_id: str):
+    """Render the settlement detail page."""
+    settlement = {
+        "id": settlement_id,
+        "entity_type": "expense",
+        "entity_id": "expense-1",
+        "total_amount_display": "$1,000.00",
+        "settled_amount_display": "$0.00",
+        "remaining_amount_display": "$1,000.00",
+        "status": "pending",
+        "priority": "normal",
+    }
+    return _render(request, "settlements/detail.html", {"active_page": "settlements", "settlement": settlement})
 
 
 @router.get("/settlements/summary-card", response_class=HTMLResponse)
@@ -275,13 +266,17 @@ async def settlements_summary_card(
 ):
     """HTMX partial: settlement summary for dashboard card."""
     if not company_id:
-        return HTMLResponse("""<div class="empty-state"><p>Select a company to view settlement status.</p></div>""")
-    return HTMLResponse("""<dl class="detail-list">
-<dt>Pending</dt><dd>0</dd>
-<dt>Completed</dt><dd>0</dd>
-<dt>Total Pending Amount</dt><dd>$0.00</dd>
-<dt>Total Settled Amount</dt><dd>$0.00</dd>
-</dl>""")
+        return _render_partial(request, "partials/empty_state.html", {
+            "message": "Select a company to view settlement status.",
+        })
+    return _render_partial(request, "partials/settlement_summary.html", {
+        "summary": {
+            "pending_settlements": 0,
+            "completed_settlements": 0,
+            "total_pending_amount_display": "$0.00",
+            "total_settled_amount_display": "$0.00",
+        }
+    })
 
 
 # ── Health ───────────────────────────────────────────────────────────────
