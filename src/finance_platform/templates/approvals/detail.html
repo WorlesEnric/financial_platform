@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Approval Chain #{{ chain.id }} — Finance Platform{% endblock %}
+{% block content %}
+<section class="page-header">
+    <a href="/approvals/pending" class="back-link">← Back to Approvals</a>
+    <h1>Approval Chain #{{ chain.id }}</h1>
+    <span class="badge status-{{ chain.status }}">{{ chain.status }}</span>
+</section>
+
+<div class="detail-grid">
+    <div class="card">
+        <div class="card-header">Details</div>
+        <div class="card-body">
+            <dl class="detail-list">
+                <dt>Entity Type</dt><dd>{{ chain.entity_type }}</dd>
+                <dt>Entity ID</dt><dd>{{ chain.entity_id }}</dd>
+                <dt>Current Step</dt><dd>{{ chain.current_step }}</dd>
+                <dt>Created</dt><dd>{{ chain.created_at }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Steps</div>
+        <div class="card-body">
+            {% if chain.steps %}
+            <div class="table-container">
+            <table>
+            <thead><tr><th>Step</th><th>Approver</th><th>Status</th></tr></thead>
+            <tbody>
+            {% for s in chain.steps %}
+            <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ s.approver_id }}</td>
+            <td><span class="badge status-{{ s.status }}">{{ s.status }}</span></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+            </table>
+            </div>
+            {% else %}
+            <p class="empty-state">No steps configured for this chain.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Decision</div>
+        <div class="card-body">
+            <form hx-post="/api/v1/approvals/chains/{{ chain.id }}/decide" hx-swap="outerHTML" class="action-form">
+                <input type="hidden" name="approved" value="true">
+                <button type="submit" class="btn btn-primary">Approve</button>
+            </form>
+            <form hx-post="/api/v1/approvals/chains/{{ chain.id }}/decide" hx-swap="outerHTML" class="action-form">
+                <input type="hidden" name="approved" value="false">
+                <button type="submit" class="btn btn-danger">Reject</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
