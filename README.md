@@ -73,6 +73,39 @@ Once the server is running, visit:
 
 All business endpoints require the `X-Company-Id` header. Unscoped requests return 400.
 
+## Frontend Strategy
+
+This platform is **backend-first by design**. The API *is* the product.
+
+### Official User Interfaces
+
+The following interfaces are the official, supported ways to interact with the platform:
+
+| Interface | URL | Audience |
+|---|---|---|
+| **Swagger UI** | `/docs` | Developers, integrators, power users |
+| **ReDoc** | `/redoc` | API consumers, documentation readers |
+| **CLI** | `finance_platform <command>` | Operators, administrators |
+
+All platform capabilities — expense submission, approval workflows, amortization schedules, settlement runs, FX rate management, and audit trails — are exposed through REST endpoints documented at `/docs` and `/redoc`. There is no separate HTML/JS/CSS frontend, and adding one is explicitly out of scope for the current acceptance baseline (see `acceptance.md` §2, Non-Goals).
+
+### Design Rationale
+
+- **Python-only ecosystem**: the entire stack lives in Python ≥3.11. Introducing a JavaScript/Node build chain would add a new toolchain, CI pipeline, and test infrastructure — a significant scope increase not budgeted for this phase.
+- **Clean separation of concerns**: the service layer, auth middleware, state machines, and domain exceptions already form a complete backend. `/docs` provides an interactive, auto-generated UI for every endpoint with zero additional code.
+- **CLI-first operations**: month-end close, migrations, seeding, and listing are operator workflows best served by a CLI. The CLI is the primary operations interface.
+- **API-first consumption model**: the platform is designed to be consumed by other systems (ERP integrations, reporting tools, downstream services). A well-documented REST API with OpenAPI specs is the correct interface for that consumption pattern.
+
+### Roadmap Considerations
+
+If a graphical frontend becomes necessary for non-technical users (e.g., expense submitters who cannot use Swagger UI), the following options preserve the Python-only constraint:
+
+1. **Server-rendered Jinja2 templates** — add `jinja2` to `pyproject.toml`, create server-rendered HTML pages served from FastAPI route handlers. Stays in Python, no JS build step. Requires template maintenance discipline.
+2. **htmx-enhanced server UI** — build on Jinja2 with a single htmx JS file (no build step) for inline approvals, live filtering, and partial-page updates. Keeps logic in Python.
+3. **Separate SPA** — a React/Vue frontend in a new repository consuming the FastAPI endpoints. Requires JS/Node toolchain, CORS configuration, and a separate deployment pipeline.
+
+These options are documented for planning purposes only. None are currently in scope.
+
 ## Architecture
 
 - **models/** — SQLModel table definitions (single source of truth)
@@ -86,3 +119,13 @@ All business endpoints require the `X-Company-Id` header. Unscoped requests retu
 - **auth/** — JWT bearer-token middleware with RBAC decorators
 - **db/** — Async SQLAlchemy engine and session factory
 - **migrations/** — Alembic migration scripts
+
+## Project Scope
+
+The current acceptance baseline (see `acceptance.md`) defines the following scope boundaries:
+
+**In scope:** backend services, REST API, CLI, database models, auth, state machines, audit logging, migrations, OpenAPI documentation via FastAPI defaults.
+
+**Out of scope:** HTML/JS/CSS frontend, CI/CD configuration, real OCR/Tesseract integration, real email/webhook delivery, production deployment config, test files, OpenAPI customization beyond FastAPI defaults.
+
+Refer to `acceptance.md` for the full gate list (G1–G38) and `SPEC_MAPPING.md` for the spec-to-module mapping.
