@@ -1,0 +1,19 @@
+<div class="table-container">
+<table>
+<thead><tr><th>ID</th><th>Entity</th><th>Step</th><th>Action</th></tr></thead>
+<tbody>
+{% if approvals %}
+{% for a in approvals %}
+<tr>
+<td>{{ a.id }}</td>
+<td>{{ a.entity_type }} #{{ a.entity_id }}</td>
+<td>{{ a.current_step }}</td>
+<td><a href="/approvals/chains/{{ a.id }}" class="btn btn-sm btn-primary">Review</a></td>
+</tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="4" class="empty-state">No pending approvals.</td></tr>
+{% endif %}
+</tbody>
+</table>
+</div>
