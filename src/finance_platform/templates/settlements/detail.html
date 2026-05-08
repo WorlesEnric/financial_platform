@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Settlement #{{ settlement.id }} — Finance Platform{% endblock %}
+{% block content %}
+<section class="page-header">
+    <a href="/settlements" class="back-link">← Back to Settlements</a>
+    <h1>Settlement #{{ settlement.id }}</h1>
+    <span class="badge status-{{ settlement.status }}">{{ settlement.status }}</span>
+</section>
+
+<div class="detail-grid">
+    <div class="card">
+        <div class="card-header">Details</div>
+        <div class="card-body">
+            <dl class="detail-list">
+                <dt>Entity Type</dt><dd>{{ settlement.entity_type }}</dd>
+                <dt>Entity ID</dt><dd>{{ settlement.entity_id }}</dd>
+                <dt>Total Amount</dt><dd>{{ settlement.total_amount_display }}</dd>
+                <dt>Settled Amount</dt><dd>{{ settlement.settled_amount_display }}</dd>
+                <dt>Remaining</dt><dd>{{ settlement.remaining_amount_display }}</dd>
+                <dt>Priority</dt><dd>{{ settlement.priority }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Actions</div>
+        <div class="card-body">
+            <form hx-post="/api/v1/settlements/settlements/{{ settlement.id }}/allocate" hx-swap="outerHTML" class="action-form">
+                <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:0.5rem">
+                    <input type="number" name="amount_minor" placeholder="Amount (minor units)" class="filter-input" style="margin-bottom:0">
+                    <button type="submit" class="btn btn-primary">Allocate</button>
+                </div>
+            </form>
+            <form hx-post="/api/v1/settlements/settlements/{{ settlement.id }}/approve" hx-swap="outerHTML" class="action-form">
+                <button type="submit" class="btn btn-primary">Approve Settlement</button>
+            </form>
+            <form hx-delete="/api/v1/settlements/settlements/{{ settlement.id }}" hx-swap="outerHTML" class="action-form"
+                  hx-confirm="Are you sure you want to remove this settlement?">
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
