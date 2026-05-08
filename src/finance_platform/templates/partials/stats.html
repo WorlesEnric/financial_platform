@@ -1,0 +1,12 @@
+<div class="card-header">Summary Statistics</div>
+<div class="card-body">
+    <dl class="detail-list">
+        <dt>Total Expenses</dt><dd>{{ stats.total_expenses }}</dd>
+        <dt>Total Amount</dt><dd>{{ stats.total_amount_display }}</dd>
+        <dt>Pending Approvals</dt><dd>{{ stats.pending_approvals }}</dd>
+        <dt>Pending Settlements</dt><dd>{{ stats.pending_settlements }}</dd>
+    </dl>
+    {% if not stats.company_scoped %}
+    <p class="empty-state">No company selected. Use <code>X-Company-Id</code> header to scope data.</p>
+    {% endif %}
+</div>
