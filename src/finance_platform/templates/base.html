@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Finance Platform{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-brand">
+            <a href="/" class="navbar-logo">FP</a>
+            <span class="navbar-title">Finance Platform</span>
+        </div>
+        <nav class="navbar-links">
+            <a href="/" class="navbar-link">Dashboard</a>
+            <a href="/expenses" class="navbar-link">Expenses</a>
+            <a href="/approvals/pending" class="navbar-link">Approvals</a>
+            <a href="/settlements" class="navbar-link">Settlements</a>
+            <a href="/docs" class="navbar-link" target="_blank">API Docs</a>
+        </nav>
+        <div class="navbar-company">
+            {% if current_company %}
+            <form method="get" action="/select-company" class="company-selector" hx-get="/select-company" hx-target="#company-options" hx-trigger="click">
+                <span class="company-badge">{{ current_company.name }}</span>
+                <span class="company-id">({{ current_company.id }})</span>
+            </form>
+            {% else %}
+            <span class="no-company">No company selected</span>
+            {% endif %}
+        </div>
+    </header>
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+        <span>Finance Platform v0.1.0</span>
+        <span class="footer-links">
+            <a href="/docs">Swagger</a> ·
+            <a href="/redoc">ReDoc</a>
+        </span>
+    </footer>
+    <div id="toast-container" class="toast-container"></div>
+</body>
+</html>

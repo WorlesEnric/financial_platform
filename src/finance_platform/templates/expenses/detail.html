@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Expense #{{ expense.id }} — Finance Platform{% endblock %}
+{% block content %}
+<section class="page-header">
+    <a href="/expenses" class="back-link">← Back to Expenses</a>
+    <h1>Expense #{{ expense.id }}</h1>
+    <span class="badge status-{{ expense.status }}">{{ expense.status }}</span>
+</section>
+
+<div class="detail-grid">
+    <div class="card">
+        <div class="card-header">Details</div>
+        <div class="card-body">
+            <dl class="detail-list">
+                <dt>Title</dt><dd>{{ expense.title }}</dd>
+                <dt>Amount</dt><dd>{{ expense.amount_display }}</dd>
+                <dt>Category</dt><dd>{{ expense.category }}</dd>
+                <dt>Created</dt><dd>{{ expense.created_at }}</dd>
+                <dt>Approval State</dt><dd>{{ expense.approval_state }}</dd>
+            </dl>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Line Items</div>
+        <div class="card-body" hx-get="/expenses/{{ expense.id }}/line-items" hx-trigger="load">
+            <div class="skeleton">Loading line items…</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Attachments</div>
+        <div class="card-body" hx-get="/expenses/{{ expense.id }}/attachments" hx-trigger="load">
+            <div class="skeleton">Loading attachments…</div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header">Actions</div>
+        <div class="card-body">
+            <form hx-post="/expenses/{{ expense.id }}/submit" hx-swap="outerHTML" class="action-form">
+                <button type="submit" class="btn btn-primary">Submit for Approval</button>
+            </form>
+            <form hx-delete="/expenses/{{ expense.id }}" hx-swap="outerHTML" class="action-form"
+                  hx-confirm="Are you sure you want to delete this expense?">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

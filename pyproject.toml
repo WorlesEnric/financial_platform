@@ -19,6 +19,7 @@ dependencies = [
     "uvicorn[standard]>=0.27.0",
     "pyjwt>=2.8.0",
     "python-multipart>=0.0.6",
+    "jinja2>=3.1.0",
 ]
 
 [project.scripts]
@@ -28,4 +29,4 @@ finance_platform = "finance_platform.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"finance_platform" = ["py.typed"]
+"finance_platform" = ["py.typed", "templates/**/*.html", "static/**/*.css"]

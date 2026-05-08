@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from finance_platform.routes.middleware import CorrelationIdMiddleware, CompanyContextValidationMiddleware
 from finance_platform.routes import init_routes, mount_all_routes
@@ -35,6 +36,13 @@ def create_app() -> FastAPI:
 
     app.add_middleware(CorrelationIdMiddleware)
     app.add_middleware(CompanyContextValidationMiddleware)
+
+    # Mount static files for the Jinja2 frontend
+    try:
+        app.mount("/static", StaticFiles(directory="src/finance_platform/static"), name="static")
+    except RuntimeError:
+        # Static directory may not exist if package is not installed in editable mode
+        pass
 
     init_routes()
     mount_all_routes(app)

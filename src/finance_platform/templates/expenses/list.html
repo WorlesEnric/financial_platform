@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Expenses — Finance Platform{% endblock %}
+{% block content %}
+<section class="page-header">
+    <h1>Expenses</h1>
+    <div class="header-actions">
+        <a href="/expenses/new" class="btn btn-primary">+ New Expense</a>
+    </div>
+</section>
+
+<div class="filters">
+    <input type="text" name="search" placeholder="Search expenses…"
+           hx-get="/expenses" hx-trigger="keyup changed delay:500ms" hx-target="#expenses-table"
+           hx-include="[name='status_filter']" class="filter-input">
+    <select name="status_filter" class="filter-select"
+            hx-get="/expenses" hx-trigger="change" hx-target="#expenses-table">
+        <option value="">All Statuses</option>
+        <option value="draft">Draft</option>
+        <option value="submitted">Submitted</option>
+        <option value="approved">Approved</option>
+        <option value="rejected">Rejected</option>
+        <option value="voided">Voided</option>
+    </select>
+</div>
+
+<div id="expenses-table" hx-get="/expenses" hx-trigger="load">
+    <div class="skeleton">Loading expenses…</div>
+</div>
+{% endblock %}
